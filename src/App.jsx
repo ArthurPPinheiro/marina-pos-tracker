@@ -493,7 +493,6 @@ export default function PosMarina() {
             {sync === "offline" && "⚠ Sem conexão — salvo localmente, sincroniza ao reconectar"}
             {sync === "idle" && "Carregando…"}
           </span>
-          <button onClick={resetSeed}>restaurar dados da planilha</button>
         </div>
       </div>
     </div>
