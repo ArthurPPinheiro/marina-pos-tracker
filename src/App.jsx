@@ -256,7 +256,8 @@ export default function PosMarina() {
     <div className="pm-root">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Public+Sans:wght@400;500;600;700&display=swap');
-        .pm-root { min-height: 100vh; background: #F1F3EF; color: #1C2924; font-family: 'Public Sans', system-ui, sans-serif; padding: 28px 16px 64px; }
+        * { box-sizing: border-box; }
+        .pm-root { min-height: 100vh; overflow-x: hidden; background: #F1F3EF; color: #1C2924; font-family: 'Public Sans', system-ui, sans-serif; padding: 28px 16px 64px; }
         .pm-wrap { max-width: 880px; margin: 0 auto; }
         .pm-eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #5A6B62; font-weight: 600; }
         .pm-title { font-family: 'Newsreader', serif; font-weight: 500; font-size: clamp(30px, 5vw, 42px); line-height: 1.05; margin: 6px 0 0; }
@@ -328,7 +329,37 @@ export default function PosMarina() {
         .pm-foot { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #8A9A90; flex-wrap: wrap; gap: 10px; }
         .pm-foot button { border: none; background: none; color: #8A9A90; text-decoration: underline; cursor: pointer; font: inherit; font-size: 12px; }
         .pm-foot button:hover { color: #B4691E; }
+
+        .pm-ghead-controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .pm-row-controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+
         @media (prefers-reduced-motion: reduce) { .pm-bar > div, .pm-chev, .pm-mchev { transition: none; } }
+
+        @media (max-width: 640px) {
+          .pm-root { padding: 18px 12px 48px; }
+          .pm-band { flex-direction: column; align-items: stretch; gap: 16px; padding: 18px; }
+          .pm-band-right { align-items: flex-start; }
+          .pm-facts { gap: 16px; }
+          .pm-daystrip { justify-content: flex-start; max-width: 100%; }
+          .pm-deadline input[type="date"] { flex: 1; min-width: 0; }
+          .pm-mhead { flex-wrap: wrap; row-gap: 4px; }
+          .pm-mstats { white-space: normal; }
+
+          .pm-ghead { flex-wrap: wrap; row-gap: 8px; }
+          .pm-ghead-controls { flex-basis: calc(100% - 24px); margin-left: 24px; justify-content: space-between; }
+          .pm-meta { width: 88px; }
+
+          .pm-row { flex-wrap: wrap; row-gap: 6px; padding: 10px 16px; }
+          .pm-row-controls { flex-basis: calc(100% - 31px); margin-left: 31px; }
+
+          .pm-check { width: 22px; height: 22px; }
+          .pm-nec { padding: 6px 10px; }
+          .pm-x, .pm-gx { padding: 6px 8px; font-size: 16px; }
+        }
+
+        @media (max-width: 400px) {
+          .pm-gbar { display: none; }
+        }
       `}</style>
 
       <div className="pm-wrap">
@@ -424,21 +455,23 @@ export default function PosMarina() {
                         <div className="pm-ghead" onClick={() => setOpenGrp((o) => ({ ...o, [key]: !o[key] }))}>
                           <span className={`pm-chev ${gOpen ? "open" : ""}`}>▶</span>
                           <span className="pm-gname">{g.nome}</span>
-                          <input
-                            className="pm-meta"
-                            value={g.meta}
-                            placeholder="meta (dd/mm)"
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => setMeta(mod, g.nome, e.target.value)}
-                            aria-label={`Data-meta para ${g.nome}`}
-                          />
-                          <span className="pm-gcount">{done}/{req.length}</span>
-                          <span className="pm-gbar"><div style={{ width: `${pct}%` }} /></span>
-                          <button
-                            className="pm-gx"
-                            title="Remover conteúdo"
-                            onClick={(e) => { e.stopPropagation(); removeGrupo(mod, g.nome); }}
-                          >✕</button>
+                          <div className="pm-ghead-controls">
+                            <input
+                              className="pm-meta"
+                              value={g.meta}
+                              placeholder="meta (dd/mm)"
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => setMeta(mod, g.nome, e.target.value)}
+                              aria-label={`Data-meta para ${g.nome}`}
+                            />
+                            <span className="pm-gcount">{done}/{req.length}</span>
+                            <span className="pm-gbar"><div style={{ width: `${pct}%` }} /></span>
+                            <button
+                              className="pm-gx"
+                              title="Remover conteúdo"
+                              onClick={(e) => { e.stopPropagation(); removeGrupo(mod, g.nome); }}
+                            >✕</button>
+                          </div>
                         </div>
                         {gOpen && (
                           <div className="pm-rows">
@@ -452,23 +485,25 @@ export default function PosMarina() {
                                   aria-label={`Aula ${l.aula} de ${g.nome}`}
                                 />
                                 <span className="pm-aula">Aula {l.aula}</span>
-                                <input
-                                  className={`pm-dur ${l.duracao == null ? "missing" : ""}`}
-                                  value={l.duracao ?? ""}
-                                  placeholder="min?"
-                                  inputMode="numeric"
-                                  onChange={(e) => setDur(l.id, e.target.value)}
-                                  aria-label="Duração em minutos"
-                                />
-                                <span className="pm-durlbl">min</span>
-                                <button
-                                  className={`pm-nec ${l.necessario ? "on" : ""}`}
-                                  onClick={() => toggleNec(l.id)}
-                                  title="Necessário assistir?"
-                                >
-                                  {l.necessario ? "necessária" : "opcional"}
-                                </button>
-                                <button className="pm-x" onClick={() => removeAula(l.id)} title="Remover aula">✕</button>
+                                <div className="pm-row-controls">
+                                  <input
+                                    className={`pm-dur ${l.duracao == null ? "missing" : ""}`}
+                                    value={l.duracao ?? ""}
+                                    placeholder="min?"
+                                    inputMode="numeric"
+                                    onChange={(e) => setDur(l.id, e.target.value)}
+                                    aria-label="Duração em minutos"
+                                  />
+                                  <span className="pm-durlbl">min</span>
+                                  <button
+                                    className={`pm-nec ${l.necessario ? "on" : ""}`}
+                                    onClick={() => toggleNec(l.id)}
+                                    title="Necessário assistir?"
+                                  >
+                                    {l.necessario ? "necessária" : "opcional"}
+                                  </button>
+                                  <button className="pm-x" onClick={() => removeAula(l.id)} title="Remover aula">✕</button>
+                                </div>
                               </div>
                             ))}
                             <button className="pm-add" onClick={() => addAula(mod, g.nome)}>+ adicionar aula</button>
